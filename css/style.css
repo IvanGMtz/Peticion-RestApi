@@ -17,4 +17,20 @@
     color:rgb(61, 61, 61)
 }
 
+.form-control{
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #1f53c5;
+    width: 100%;
+}
 
+.btn{
+    background: white;
+    border: 1px solid #1f53c5;
+    padding: 12px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.btn:hover{
+    background: #1f53c5;
+}
