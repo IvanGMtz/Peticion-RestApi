@@ -1,5 +1,52 @@
 <?php
 
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    // Configuración de la API
+    $url = 'https://6483457cf2e76ae1b95c3b21.mockapi.io/users';
+
+    // Crear un array con los datos a enviar a la API
+    $data = array(
+        "id"=> $_POST["cedula"],
+        "name" => $_POST["nombre"],
+        "surname" => $_POST["apellido"],
+        "address"=> $_POST["direccion"],
+        "age"=> $_POST["edad"],
+        "mail"=> $_POST["email"],
+        "time"=> $_POST["hora"],
+        "team"=>$_POST["team"],
+        "trainer"=>$_POST["trainer"]
+    );
+
+    // Convertir los datos a JSON
+    $jsonData = json_encode($data);
+
+    if (isset($_POST['guardar'])) {
+        // Configurar la solicitud a la API
+        $options = array(
+        'http' => array(
+            'header' => "Content-Type: application/json",
+            'method' => 'POST',
+            'content' => $jsonData
+        )
+    );
+
+    $context = stream_context_create($options);
+
+    // Realizar la solicitud a la API
+    $response = file_get_contents($url, false, $context);
+
+    // Verificar la respuesta de la API
+    if ($response) {
+        echo "Datos enviados exitosamente a la API.";
+    } else {
+        echo "Error al enviar los datos a la API.";
+    }
+    }
+
+    $_POST=array();
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,7 +60,7 @@
 </head>
 <body>
     <div class="container">
-        <form action="POST">
+        <form method="POST" action="<?php echo $_SERVER["PHP_SELF"]; ?>">
             <nav>
                 <div class="col">
                     <div class="row">
@@ -56,10 +103,10 @@
                     <div class="col">
                         <div class="row">
                             <div class="col">
-                                <input class="btn" type="submit" name="guardar"  value="✔️">
+                                <input class="btn" id="save" type="submit" name="guardar"  value="✔️">
                             </div>
                             <div class="col">
-                                <input class="btn" type="submit" name="eliminar" value="❌">
+                                <input class="btn" id="delete" type="submit" name="eliminar" value="❌">
                             </div>
                         </div>
                         <input type="hidden" name="">
@@ -72,10 +119,10 @@
                     <div class="col">
                         <div class="row">
                             <div class="col">
-                                <input class="btn" name="actualizar" type="submit" value="🖋️">
+                                <input class="btn" id="update" name="actualizar" type="submit" value="🖋️">
                             </div>
                             <div class="col">
-                                <input class="btn" name="buscar" type="submit" value="🔍">
+                                <input class="btn" id="search" name="buscar" type="submit" value="🔍">
                             </div>
                         </div>
                     </div>
@@ -92,7 +139,35 @@
         </form>
         <footer>
             <table>
-
+                <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Dirección</th>
+                            <th>Edad</th>
+                            <th>Email</th>
+                            <th>Hora/entrada</th>
+                            <th>Team</th>
+                            <th>Trainer</th>
+                            <th>Cedula</th>
+                        </tr>
+                </thead>
+                <tbody id="table">
+                        <?php
+                        // echo "<tr>
+                        // <td>" . $_POST["nombre"] . "</td>
+                        // <td>" . $_POST["apellido"] . "</td>
+                        // <td>" . $_POST["direccion"] . " </td>
+                        // <td>" . $_POST["edad"] . " </td>
+                        // <td>" . $_POST["email"] . " </td>
+                        // <td>" . $_POST["hora"] . " </td>
+                        // <td>" . $_POST["team"] . " </td>
+                        // <td>" . $_POST["trainer"] . "</td>
+                        // <td>" . $_POST["cedula"] . " </td>
+                        // </tr>";
+                        // var_dump($_POST);
+                        ?>
+                </tbody>
             </table>
         </footer>
     </div>
