@@ -3,8 +3,12 @@ $url = 'https://6483457cf2e76ae1b95c3b21.mockapi.io/users';
 
 if (isset($_POST['guardar'])) {
     MetodoPOST($url);
+    $_POST['guardar']=null;
 }elseif(isset($_POST['eliminar'])){
     MetodoDelete($url, $_POST["cedula"]);
+}elseif(isset($_POST['buscar'])){
+    $id = IdwithCedula($url, $_POST["cedula"]);
+    $ArrayBuscado = BuscarByCedula($url, $id);
 }
 
 function MetodoPOST($url){
@@ -123,6 +127,40 @@ function IdwithCedula($url, $cedula) {
         return null; // Retorna null si no se encuentra el ID
     }    
 }
+function BuscarByCedula($url, $id){
+    $options = array(
+        'http' => array(
+            'header' => "Content-Type: application/json",
+            'method' => 'GET'
+        )
+    );
+    
+    $context = stream_context_create($options);
+    
+    // Realizar la solicitud a la API
+    $response = file_get_contents($url, false, $context);
+    
+    // Verificar la respuesta de la API
+    if ($response) {
+        $ApiDatos = json_decode($response, true);
+        foreach ($ApiDatos as $item) {
+            if ($item['id'] == $id) {
+                return [
+                    "nombre"=>$item["name"],
+                    "apellido"=>$item["surname"],
+                    "direccion"=>$item["address"],
+                    "edad"=>$item["age"],
+                    "email"=>$item["mail"],
+                    "hora"=>$item["time"],
+                    "team"=>$item["team"],
+                    "trainer"=>$item["trainer"],
+                    "cedula"=>$item["cedula"]
+                ];
+            }
+        }
+        return null; // Retorna null si no se encuentra el ID
+    }  
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -141,7 +179,7 @@ function IdwithCedula($url, $cedula) {
                 <div class="col">
                     <div class="row">
                         <div class="col">
-                            <input type="text" class="form-control" placeholder="Nombre" name="nombre" value="<?php echo ""; ?>">
+                            <input type="text" class="form-control" placeholder="Nombre" name="nombre" value="<?php isset($ArrayBuscado['nombre']) ? print $ArrayBuscado['nombre']  : print "" ?>">
                         </div>
                         <div class="col titulo">
                             <label for="">CAMPUSLAND</label>
@@ -149,18 +187,18 @@ function IdwithCedula($url, $cedula) {
                     </div>
                     <div class="row mt-2">
                         <div class="col">
-                            <input type="text" class="form-control" placeholder="Apellidos" name="apellido" value="<?php echo ""; ?>">
+                            <input type="text" class="form-control" placeholder="Apellidos" name="apellido" value="<?php isset($ArrayBuscado['apellido']) ? print $ArrayBuscado['apellido']  : print "" ?>">
                         </div>
                         <div class="col">
-                            <input type="number" class="form-control" placeholder="Edad" name="edad" min="0" value="<?php echo ""; ?>">
+                            <input type="number" class="form-control" placeholder="Edad" name="edad" min="0" value="<?php isset($ArrayBuscado['edad']) ? print $ArrayBuscado['edad']  : print "" ?>">
                         </div>
                     </div>
                     <div class="row mt-2">
                         <div class="col">
-                            <input type="text" name="direccion" class="form-control" placeholder="Direccion" value="<?php echo ""; ?>">
+                            <input type="text" name="direccion" class="form-control" placeholder="Direccion" value="<?php isset($ArrayBuscado['direccion']) ? print $ArrayBuscado['direccion']  : print "" ?>">
                         </div>
                         <div class="col">
-                            <input type="email" name="email" class="form-control" placeholder="Correo Electronico" value="<?php echo ""; ?>">
+                            <input type="email" name="email" class="form-control" placeholder="Correo Electronico" value="<?php isset($ArrayBuscado['email']) ? print $ArrayBuscado['email']  : print "" ?>">
                         </div>
                     </div>
                 </div>
@@ -174,7 +212,7 @@ function IdwithCedula($url, $cedula) {
                 </div>
                 <div class="row mt-2">
                     <div class="col">
-                        <input type="time" name="hora" id="" class="form-control" value="<?php echo ""; ?>">
+                        <input type="time" name="hora" id="" class="form-control" value="<?php isset($ArrayBuscado['hora']) ? print $ArrayBuscado['hora']  : print "" ?>">
                     </div>
                     <div class="col">
                         <div class="row">
@@ -190,7 +228,7 @@ function IdwithCedula($url, $cedula) {
                 </div>
                 <div class="row mt-2">
                     <div class="col">
-                        <input type="text" placeholder="Team" name="team" id="" class="form-control" value="<?php echo ""; ?>">
+                        <input type="text" placeholder="Team" name="team" id="" class="form-control" value="<?php isset($ArrayBuscado['team']) ? print $ArrayBuscado['team']  : print "" ?>">
                     </div>
                     <div class="col">
                         <div class="row">
@@ -205,10 +243,10 @@ function IdwithCedula($url, $cedula) {
                 </div>
                 <div class="row mt-2">
                     <div class="col">
-                        <input type="text" name="trainer" placeholder="Trainer" id="" class="form-control" value="<?php echo ""; ?>">
+                        <input type="text" name="trainer" placeholder="Trainer" id="" class="form-control" value="<?php isset($ArrayBuscado['trainer']) ? print $ArrayBuscado['trainer']  : print "" ?>">
                     </div>
                     <div class="col">
-                        <input type="text" name="cedula" placeholder="Cédula" id="" class="form-control" value="<?php echo ""; ?>">
+                        <input type="text" name="cedula" placeholder="Cédula" id="" class="form-control" value="<?php isset($ArrayBuscado['cedula']) ? print $ArrayBuscado['cedula']  : print "" ?>">
                     </div>
                 </div>
             </main>
