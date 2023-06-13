@@ -1,20 +1,21 @@
 <?php
 $url = 'https://6483457cf2e76ae1b95c3b21.mockapi.io/users';
-
+$ApiDatos = MetodoGET($url);
 if (isset($_POST['guardar'])) {
     MetodoPOST($url);
     $_POST['guardar']=null;
 }elseif(isset($_POST['eliminar'])){
     MetodoDelete($url, $_POST["cedula"]);
 }elseif(isset($_POST['buscar'])){
-    $id = IdwithCedula($url, $_POST["cedula"]);
-    $ArrayBuscado = BuscarByCedula($url, $id);
+    $id = IdwithCedula($url, $_POST["cedula"], $ApiDatos);
+    $ArrayBuscado = BuscarByCedula($url, $id, $ApiDatos);
 }elseif(isset($_POST['subir'])){
     $id = $_POST['subir'];
-    $ArrayBuscado = BuscarByCedula($url, $id);
+    $ArrayBuscado = BuscarByCedula($url, $id, $ApiDatos);
 }elseif(isset($_POST['actualizar'])){
-    $id = IdwithCedula($url, $_POST["cedula"]);
+    $id = IdwithCedula($url, $_POST["cedula"], $ApiDatos);
     MetodoPUT($url, $id);
+    $ApiDatos = MetodoGET($url);
 }
 
 function MetodoPOST($url){
@@ -131,7 +132,7 @@ function MetodoGET($url){
         echo "Error al obtener la información de la API.";
     }
 }
-$ApiDatos = MetodoGET($url);
+
 function MostrarUsuarios($ApiDatos){
     foreach ($ApiDatos as $user) {
         echo "<tr>
@@ -147,46 +148,15 @@ function MostrarUsuarios($ApiDatos){
         </tr>";
     }
 }
-function IdwithCedula($url, $cedula) {
-    $options = array(
-        'http' => array(
-            'header' => "Content-Type: application/json",
-            'method' => 'GET'
-        )
-    );
-    
-    $context = stream_context_create($options);
-    
-    // Realizar la solicitud a la API
-    $response = file_get_contents($url, false, $context);
-    
-    // Verificar la respuesta de la API
-    if ($response) {
-        $ApiDatos = json_decode($response, true);
+function IdwithCedula($url, $cedula, $ApiDatos) {
         foreach ($ApiDatos as $item) {
             if ($item['cedula'] == $cedula) {
                 return $item['id'];
             }
         }
-        return null; // Retorna null si no se encuentra el ID
-    }    
+        return null; // Retorna null si no se encuentra el ID  
 }
-function BuscarByCedula($url, $id){
-    $options = array(
-        'http' => array(
-            'header' => "Content-Type: application/json",
-            'method' => 'GET'
-        )
-    );
-    
-    $context = stream_context_create($options);
-    
-    // Realizar la solicitud a la API
-    $response = file_get_contents($url, false, $context);
-    
-    // Verificar la respuesta de la API
-    if ($response) {
-        $ApiDatos = json_decode($response, true);
+function BuscarByCedula($url, $id, $ApiDatos){
         foreach ($ApiDatos as $item) {
             if ($item['id'] == $id) {
                 return [
@@ -203,7 +173,6 @@ function BuscarByCedula($url, $id){
             }
         }
         return null; // Retorna null si no se encuentra el ID
-    }  
 }
 ?>
 <!DOCTYPE html>
