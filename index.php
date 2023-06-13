@@ -110,8 +110,7 @@ function MetodoDelete($url, $cedula){
     }
 }
 
-function MetodoGET($url){
-    
+function MetodoGET($url){ 
     $options = array(
         'http' => array(
             'header' => "Content-Type: application/json",
@@ -127,23 +126,25 @@ function MetodoGET($url){
     // Verificar la respuesta de la API
     if ($response) {
         // Decodificar la respuesta JSON en un array asociativo
-        $ApiDatos = json_decode($response, true);
-        // Mostrar la información obtenida
-        foreach ($ApiDatos as $user) {
-            echo "<tr>
-            <td>" . $user["name"] . "</td>
-            <td>" . $user["surname"] . "</td>
-            <td>" . $user["address"] . " </td>
-            <td>" . $user["age"] . " </td>
-            <td>" . $user["mail"] . " </td>
-            <td>" . $user["time"] . " </td>
-            <td>" . $user["team"] . " </td>
-            <td>" . $user["trainer"] . "</td>
-            <td><button type='submit' value='{$user["id"]}' name='subir'>↑</button></td>
-            </tr>";
-        }
+        return $ApiDatos = json_decode($response, true);
     } else {
         echo "Error al obtener la información de la API.";
+    }
+}
+$ApiDatos = MetodoGET($url);
+function MostrarUsuarios($ApiDatos){
+    foreach ($ApiDatos as $user) {
+        echo "<tr>
+        <td>" . $user["name"] . "</td>
+        <td>" . $user["surname"] . "</td>
+        <td>" . $user["address"] . " </td>
+        <td>" . $user["age"] . " </td>
+        <td>" . $user["mail"] . " </td>
+        <td>" . $user["time"] . " </td>
+        <td>" . $user["team"] . " </td>
+        <td>" . $user["trainer"] . "</td>
+        <td><button type='submit' value='{$user["id"]}' name='subir'>↑</button></td>
+        </tr>";
     }
 }
 function IdwithCedula($url, $cedula) {
@@ -308,7 +309,7 @@ function BuscarByCedula($url, $id){
                         </tr>
                 </thead>
                 <tbody id="table">
-                        <?php MetodoGET($url);  ?>
+                        <?php MostrarUsuarios($ApiDatos);  ?>
                 </tbody>
             </table>
         </footer>
