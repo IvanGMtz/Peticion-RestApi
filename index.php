@@ -12,6 +12,9 @@ if (isset($_POST['guardar'])) {
 }elseif(isset($_POST['subir'])){
     $id = $_POST['subir'];
     $ArrayBuscado = BuscarByCedula($url, $id);
+}elseif(isset($_POST['actualizar'])){
+    $id = IdwithCedula($url, $_POST["cedula"]);
+    MetodoPUT($url, $id);
 }
 
 function MetodoPOST($url){
@@ -41,6 +44,42 @@ function MetodoPOST($url){
     
     // Realizar la solicitud a la API
     $response = file_get_contents($url, false, stream_context_create($options));
+
+    // Verificar la respuesta de la API
+    if (!$response) {
+        echo "Error al enviar los datos a la API.";
+    }
+}
+
+function MetodoPUT($url, $id){
+    // Crear un array con los datos a enviar a la API
+    $data = array(
+    "cedula"=> $_POST["cedula"],
+    "name" => $_POST["nombre"],
+    "surname" => $_POST["apellido"],
+    "address"=> $_POST["direccion"],
+    "age"=> $_POST["edad"],
+    "mail"=> $_POST["email"],
+    "time"=> $_POST["hora"],
+    "team"=>$_POST["team"],
+    "trainer"=>$_POST["trainer"]
+    );
+
+    // Convertir los datos a JSON
+    $jsonData = json_encode($data);
+    // Configurar la solicitud a la API
+    $options = array(
+        'http' => array(
+            'header' => "Content-Type: application/json",
+            'method' => 'PUT',
+            'content' => $jsonData
+        )
+    );
+
+    $Editurl = $url . "/" . $id;
+    
+    // Realizar la solicitud a la API
+    $response = file_get_contents($Editurl, false, stream_context_create($options));
 
     // Verificar la respuesta de la API
     if (!$response) {
