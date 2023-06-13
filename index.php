@@ -9,6 +9,9 @@ if (isset($_POST['guardar'])) {
 }elseif(isset($_POST['buscar'])){
     $id = IdwithCedula($url, $_POST["cedula"]);
     $ArrayBuscado = BuscarByCedula($url, $id);
+}elseif(isset($_POST['subir'])){
+    $id = $_POST['subir'];
+    $ArrayBuscado = BuscarByCedula($url, $id);
 }
 
 function MetodoPOST($url){
@@ -97,6 +100,7 @@ function MetodoGET($url){
             <td>" . $user["time"] . " </td>
             <td>" . $user["team"] . " </td>
             <td>" . $user["trainer"] . "</td>
+            <td><button type='submit' value='{$user["id"]}' name='subir'>↑</button></td>
             </tr>";
         }
     } else {
@@ -250,7 +254,6 @@ function BuscarByCedula($url, $id){
                     </div>
                 </div>
             </main>
-        </form>
         <footer>
             <table>
                 <thead>
@@ -270,6 +273,7 @@ function BuscarByCedula($url, $id){
                 </tbody>
             </table>
         </footer>
+        </form>
     </div>
 </body>
 </html>
