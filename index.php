@@ -4,8 +4,10 @@ $ApiDatos = MetodoGET($url);
 if (isset($_POST['guardar'])) {
     MetodoPOST($url);
     $_POST['guardar']=null;
+    $ApiDatos = MetodoGET($url);
 }elseif(isset($_POST['eliminar'])){
-    MetodoDelete($url, $_POST["cedula"]);
+    MetodoDelete($url, $_POST["cedula"], $ApiDatos);
+    $ApiDatos = MetodoGET($url);
 }elseif(isset($_POST['buscar'])){
     $id = IdwithCedula($url, $_POST["cedula"], $ApiDatos);
     $ArrayBuscado = BuscarByCedula($url, $id, $ApiDatos);
@@ -88,8 +90,8 @@ function MetodoPUT($url, $id){
     }
 }
 
-function MetodoDelete($url, $cedula){
-    $id = IdwithCedula($url, $cedula);
+function MetodoDelete($url, $cedula, $ApiDatos){
+    $id = IdwithCedula($url, $cedula, $ApiDatos);
     $Deleteurl = $url . "/" . $id;
 
     // Configurar la solicitud a la API
