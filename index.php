@@ -1,51 +1,70 @@
 <?php
 $url = 'https://6483457cf2e76ae1b95c3b21.mockapi.io/users';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if (isset($_POST['guardar'])) {
+    MetodoPOST($url);
+}elseif(isset($_POST['eliminar'])){
+    MetodoDelete($url, $_POST["cedula"]);
+}
 
+function MetodoPOST($url){
     // Crear un array con los datos a enviar a la API
     $data = array(
-        "id"=> $_POST["cedula"],
-        "name" => $_POST["nombre"],
-        "surname" => $_POST["apellido"],
-        "address"=> $_POST["direccion"],
-        "age"=> $_POST["edad"],
-        "mail"=> $_POST["email"],
-        "time"=> $_POST["hora"],
-        "team"=>$_POST["team"],
-        "trainer"=>$_POST["trainer"]
+    "cedula"=> $_POST["cedula"],
+    "name" => $_POST["nombre"],
+    "surname" => $_POST["apellido"],
+    "address"=> $_POST["direccion"],
+    "age"=> $_POST["edad"],
+    "mail"=> $_POST["email"],
+    "time"=> $_POST["hora"],
+    "team"=>$_POST["team"],
+    "trainer"=>$_POST["trainer"]
     );
 
     // Convertir los datos a JSON
     $jsonData = json_encode($data);
-
-    if (isset($_POST['guardar'])) {
-        // Configurar la solicitud a la API
-        $options = array(
+    // Configurar la solicitud a la API
+    $options = array(
         'http' => array(
             'header' => "Content-Type: application/json",
             'method' => 'POST',
             'content' => $jsonData
         )
     );
+    
+    // Realizar la solicitud a la API
+    $response = file_get_contents($url, false, stream_context_create($options));
+
+    // Verificar la respuesta de la API
+    if (!$response) {
+        echo "Error al enviar los datos a la API.";
+    }
+}
+
+function MetodoDelete($url, $cedula){
+    $id = IdwithCedula($url, $cedula);
+    $Deleteurl = $url . "/" . $id;
+
+    // Configurar la solicitud a la API
+    $options = array(
+        'http' => array(
+            'header' => "Content-Type: application/json",
+            'method' => 'DELETE'
+        )
+    );
 
     $context = stream_context_create($options);
 
-    // Realizar la solicitud a la API
-    $response = file_get_contents($url, false, $context);
+    // Realizar la solicitud DELETE a la API
+    $response = file_get_contents($Deleteurl, false, $context);
 
     // Verificar la respuesta de la API
-    if ($response) {
-    } else {
-        echo "Error al enviar los datos a la API.";
+    if (!$response) {
+        echo "Error al eliminar el recurso de la API.";
     }
-    }
-
-    $_POST=array();
-    $data=array();
 }
 
-function createUser($url){
+function MetodoGET($url){
     
     $options = array(
         'http' => array(
@@ -63,13 +82,12 @@ function createUser($url){
     if ($response) {
         // Decodificar la respuesta JSON en un array asociativo
         $ApiDatos = json_decode($response, true);
-    
         // Mostrar la información obtenida
         foreach ($ApiDatos as $user) {
             echo "<tr>
             <td>" . $user["name"] . "</td>
             <td>" . $user["surname"] . "</td>
-            <td>" . $user["addres"] . " </td>
+            <td>" . $user["address"] . " </td>
             <td>" . $user["age"] . " </td>
             <td>" . $user["mail"] . " </td>
             <td>" . $user["time"] . " </td>
@@ -81,6 +99,30 @@ function createUser($url){
         echo "Error al obtener la información de la API.";
     }
 }
+function IdwithCedula($url, $cedula) {
+    $options = array(
+        'http' => array(
+            'header' => "Content-Type: application/json",
+            'method' => 'GET'
+        )
+    );
+    
+    $context = stream_context_create($options);
+    
+    // Realizar la solicitud a la API
+    $response = file_get_contents($url, false, $context);
+    
+    // Verificar la respuesta de la API
+    if ($response) {
+        $ApiDatos = json_decode($response, true);
+        foreach ($ApiDatos as $item) {
+            if ($item['cedula'] == $cedula) {
+                return $item['id'];
+            }
+        }
+        return null; // Retorna null si no se encuentra el ID
+    }    
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -89,7 +131,7 @@ function createUser($url){
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRUD</title>
-    <link rel="stylesheet" href="./css/style.css">
+    <!-- <link rel="stylesheet" href="./css/style.css"> -->
     <link rel="stylesheet" href="./css/bootstrap-grid.min.css">
 </head>
 <body>
@@ -99,7 +141,7 @@ function createUser($url){
                 <div class="col">
                     <div class="row">
                         <div class="col">
-                            <input type="text" class="form-control" placeholder="Nombre" name="nombre">
+                            <input type="text" class="form-control" placeholder="Nombre" name="nombre" value="<?php echo ""; ?>">
                         </div>
                         <div class="col titulo">
                             <label for="">CAMPUSLAND</label>
@@ -107,18 +149,18 @@ function createUser($url){
                     </div>
                     <div class="row mt-2">
                         <div class="col">
-                            <input type="text" class="form-control" placeholder="Apellidos" name="apellido">
+                            <input type="text" class="form-control" placeholder="Apellidos" name="apellido" value="<?php echo ""; ?>">
                         </div>
                         <div class="col">
-                            <input type="number" class="form-control" placeholder="Edad" name="edad" min="0">
+                            <input type="number" class="form-control" placeholder="Edad" name="edad" min="0" value="<?php echo ""; ?>">
                         </div>
                     </div>
                     <div class="row mt-2">
                         <div class="col">
-                            <input type="text" name="direccion" class="form-control" placeholder="Direccion">
+                            <input type="text" name="direccion" class="form-control" placeholder="Direccion" value="<?php echo ""; ?>">
                         </div>
                         <div class="col">
-                            <input type="email" name="email" class="form-control" placeholder="Correo Electronico">
+                            <input type="email" name="email" class="form-control" placeholder="Correo Electronico" value="<?php echo ""; ?>">
                         </div>
                     </div>
                 </div>
@@ -132,7 +174,7 @@ function createUser($url){
                 </div>
                 <div class="row mt-2">
                     <div class="col">
-                        <input type="time" name="hora" id="" class="form-control">
+                        <input type="time" name="hora" id="" class="form-control" value="<?php echo ""; ?>">
                     </div>
                     <div class="col">
                         <div class="row">
@@ -148,7 +190,7 @@ function createUser($url){
                 </div>
                 <div class="row mt-2">
                     <div class="col">
-                        <input type="text" placeholder="Team" name="team" id="" class="form-control">
+                        <input type="text" placeholder="Team" name="team" id="" class="form-control" value="<?php echo ""; ?>">
                     </div>
                     <div class="col">
                         <div class="row">
@@ -163,10 +205,10 @@ function createUser($url){
                 </div>
                 <div class="row mt-2">
                     <div class="col">
-                        <input type="text" name="trainer" placeholder="Trainer" id="" class="form-control">
+                        <input type="text" name="trainer" placeholder="Trainer" id="" class="form-control" value="<?php echo ""; ?>">
                     </div>
                     <div class="col">
-                        <input type="text" name="cedula" placeholder="Cédula" id="" class="form-control">
+                        <input type="text" name="cedula" placeholder="Cédula" id="" class="form-control" value="<?php echo ""; ?>">
                     </div>
                 </div>
             </main>
@@ -186,7 +228,7 @@ function createUser($url){
                         </tr>
                 </thead>
                 <tbody id="table">
-                        <?php createUser($url);  ?>
+                        <?php MetodoGET($url);  ?>
                 </tbody>
             </table>
         </footer>
